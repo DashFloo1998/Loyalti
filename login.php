@@ -37,7 +37,7 @@ if (isset($_POST['login'])) {
     
     <style>
         body {
-            background: url('images/background.jpg') no-repeat center center fixed; 
+            background: url('images/logored.jpg') no-repeat center center fixed; 
             background-size: cover;
             font-family: 'Poppins', sans-serif;
             margin: 0;
@@ -47,6 +47,12 @@ if (isset($_POST['login'])) {
             min-height: 100vh;
             padding: 20px;
         }
+        /* Tambahkan overlay sedikit biar teks lebih terbaca (opsional) */
+        .bg-fixed::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.1); /* Hitam transparan 10% */}
 
         .login-card { 
             background: rgba(255, 255, 255, 0.9); 
@@ -147,7 +153,7 @@ if (isset($_POST['login'])) {
     </style>
 </head>
 <body>
-
+<div class="bg-fixed"></div>
 <div class="login-card">
     <img src="https://arest.web.id/sites/default/files/styles/foto_company_singlepost/public/logo-ai-cha-ice-cream-and-tea.png?itok=gmWdhx1o" class="logo" alt="Ai-CHA Logo">
     

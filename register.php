@@ -31,7 +31,7 @@ if (isset($_POST['register'])) {
     <style>
         /* Mengambil style yang sama persis dari login.php */
         body {
-            background: url('images/background.jpg') no-repeat center center fixed; 
+            background: url('images/logored.jpg') no-repeat center center fixed; 
             background-size: cover;
             font-family: 'Poppins', sans-serif;
             margin: 0;

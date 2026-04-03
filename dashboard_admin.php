@@ -61,6 +61,13 @@ if (isset($_GET['cari'])) {
 } else {
     $query_user = mysqli_query($conn, "SELECT * FROM tbmember WHERE role = 'customer' ORDER BY ID DESC");
 }
+
+// ALUR LOGIKA ADMIN (Sisi Belakang):
+// 1. Admin input 'AIC-77XQ'
+// 2. Sistem cek di 'tb_redeem_request'
+// 3. Jika ADA dan STATUS 'pending':
+//    a. UPDATE tbmember SET Member_point = Member_point - poin_biaya, Total_Redeem = Total_Redeem + poin_biaya WHERE ID = id_user
+//    b. UPDATE tb_redeem_request SET status = 'selesai' WHERE kode_unik = 'AIC-77XQ'
 ?>
 
 <!DOCTYPE html>
@@ -92,23 +99,29 @@ if (isset($_GET['cari'])) {
         <a href="logout.php" style="color: red; text-decoration: none; font-weight: bold;">Keluar</a>
     </div>
 
-    <form class="search-box" method="GET">
-        <input type="text" name="cari" placeholder="Cari Nama atau Nomor HP Pelanggan..." value="<?php echo $search; ?>">
-        <button type="submit" class="btn" style="background: #1d3557; width: 80px;">Cari</button>
+    <div style="margin-bottom: 20px;">
+    <form method="GET" action="dashboard_admin.php" style="display: flex; gap: 10px;">
+        <input type="text" name="search" placeholder="Cari Nama atau Nomor HP Pelanggan..." style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+        <button type="submit" style="background: #2c3e50; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;">Cari</button>
     </form>
+</div>
 
-    <?php if(isset($_GET['pesan'])) : ?>
-        <p style="color: green; font-weight: bold;">Status: <?php echo str_replace('_', ' ', $_GET['pesan']); ?></p>
-    <?php endif; ?>
+<div style="background: #f9f9f9; padding: 20px; border-radius: 20px; border: 1px solid #eee;">
+    
+    <h4 style="margin: 0 0 10px 0;">Input Point & Stamp Ai-CHA</h4>
+    <form method="POST" action="proses_admin.php" style="display: flex; gap: 10px; margin-bottom: 25px;">
+        <input type="text" name="no_hp" placeholder="Nomor HP Member" required style="padding: 10px; border: 1px solid #ddd; border-radius: 8px; width: 200px;">
+        <input type="number" name="total_belanja" placeholder="Total Belanja (Rp)" required style="padding: 10px; border: 1px solid #ddd; border-radius: 8px; width: 200px;">
+        <button type="submit" name="tambah_manual" style="background: white; border: 1px solid #333; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer;">PROSES TRANSAKSI</button>
+    </form> <hr style="border: 0; border-top: 1px solid #ddd; margin: 20px 0;">
 
-    <div class="admin-card">
-    <h3>Input Point & Stamp Ai-CHA</h3>
-    <form method="POST" action="proses_admin.php">
-        <input type="text" name="no_hp" placeholder="Nomor HP Member" required>
-        <input type="number" name="total_belanja" placeholder="Total Belanja (Rp)" required>
-        <button type="submit" name="tambah_manual" class="btn-tambah">PROSES TRANSAKSI</button>
-    </form>
-    </div>
+    <h4 style="margin: 0 0 10px 0;">Validasi Voucher</h4>
+    <p style="font-size: 12px; color: #666; margin-bottom: 10px;">Masukkan kode unik dari customer untuk memotong poin.</p>
+    
+    <form action="proses_konfirmasi_admin.php" method="POST" style="display: flex; gap: 10px; align-items: center;">
+        <input type="text" name="kode_unik" placeholder="AIC-XXXXX" required style="text-transform: uppercase; padding: 15px; border: 1px solid #ddd; border-radius: 15px; width: 200px; font-weight: bold; font-size: 16px;">
+        <button type="submit" name="cek_kode" style="background: #e63946; color: white; border: none; padding: 12px 30px; border-radius: 15px; font-weight: bold; cursor: pointer;">PROSES</button>
+    </form> </div>
     
     <h3>Daftar Pelanggan</h3>
     <table>
