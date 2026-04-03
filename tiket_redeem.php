@@ -114,29 +114,34 @@ $data = mysqli_fetch_assoc($query);
 <body>
 
     <div class="bg-fixed"></div>
+<div class="ticket-card" style="text-align: center; padding: 40px 20px; background: rgba(255,255,255,0.9); border-radius: 40px; box-shadow: 0 20px 50px rgba(0,0,0,0.1);">
+    
+    <h2 style="font-weight: 800; color: #333; margin-bottom: 5px;">Tukarkan Menu! 🍦</h2>
+    <p style="color: #666; font-size: 13px; margin-bottom: 25px;">Tunjukkan QR Code ini ke Kasir Ai-CHA</p>
 
-    <div class="ticket-card">
-        <h2>Tukarkan Kode! 🍦</h2>
-        <p class="subtitle">Berikan kode di bawah ini kepada Kasir Ai-CHA untuk verifikasi.</p>
-        
-        <div class="code-display">
-            <strong><?php echo $data['kode_unik']; ?></strong>
-        </div>
-
-        <div class="item-info">
-            <span>Menu Hadiah :</span>
-            <b><?php echo $data['nama_item']; ?></b>
-        </div>
-
-       <div class="status-info" id="status-text">
-       <i class="fas fa-circle-notch fa-spin"></i> 
-       <span style="margin-left:8px;">Menunggu Kasir Memproses...</span>
-       </div>
-
-        <a href="dashboard_user.php" class="btn-back">
-            <i class="fas fa-arrow-left"></i> Kembali ke Dashboard
-        </a>
+    <div class="qr-box" style="background: white; padding: 20px; display: inline-block; border-radius: 30px; box-shadow: 0 10px 30px rgba(230, 57, 70, 0.1); border: 2px solid #fdf2f2; margin-bottom: 20px;">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=<?php echo $data['kode_unik']; ?>&color=e63946" 
+             alt="QR Redeem" 
+             style="display: block; width: 180px; height: 180px;">
     </div>
+
+    <div class="code-text-box" style="margin-bottom: 30px;">
+        <span style="display: block; color: #aaa; font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;">Kode Manual:</span>
+        <h3 style="margin: 5px 0; color: #e63946; font-size: 28px; letter-spacing: 5px; font-weight: 900;">
+            <?php echo $data['kode_unik']; ?>
+        </h3>
+    </div>
+
+    <div style="background: #f9f9f9; padding: 15px; border-radius: 20px; margin-bottom: 25px;">
+        <p style="margin: 0; color: #888; font-size: 12px;">Menu Hadiah:</p>
+        <strong style="color: #333; font-size: 18px;"><?php echo $data['nama_item']; ?></strong>
+    </div>
+
+    <p style="font-size: 11px; color: #e63946; font-weight: 700;">
+        <i class="fas fa-sync-alt fa-spin"></i> Menunggu Konfirmasi Kasir...
+    </p>
+
+</div>
 
 
    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

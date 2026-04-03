@@ -115,7 +115,7 @@
         <div class="step-number">1</div>
         <div class="step-text">
             <b>Beli Minuman Favorit</b>
-            <p>Setiap transaksi minimal Rp. 20.000 mendapatkan 1 stamp. Makin banyak jajan, makin untung!</p>
+            <p>Setiap transaksi minimal Rp. 30.000 mendapatkan 1 stamp. Makin banyak jajan, makin untung!</p>
         </div>
     </div>
 
