@@ -15,6 +15,23 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     exit();
 }
 
+// --- LOGIKA FILTER REKAP (TAMBAHKAN INI) ---
+$filter = isset($_GET['range']) ? $_GET['range'] : 'today';
+switch ($filter) {
+    case 'weekly':
+        $judul_history = "History Redeem Minggu Ini";
+        $where_clause_history = "r.tanggal >= DATE_SUB(NOW(), INTERVAL 7 DAY)";
+        break;
+    case 'monthly':
+        $judul_history = "History Redeem Bulan Ini";
+        $where_clause_history = "MONTH(r.tanggal) = MONTH(NOW()) AND YEAR(r.tanggal) = YEAR(NOW())";
+        break;
+    default:
+        $judul_history = "History Redeem Hari Ini";
+        $where_clause_history = "DATE(r.tanggal) = CURDATE()";
+        break;
+}
+
 // --- LOGIKA UTAMA: POIN (BELANJA/1000) & STAMP (BELANJA/30rb) ---
 if (isset($_POST['tambah_manual'])) {
     $no_hp = mysqli_real_escape_string($conn, trim($_POST['no_hp']));
@@ -67,7 +84,11 @@ if (isset($_POST['tukar_5_stamp_user']) || isset($_POST['tukar_10_stamp_user']))
 $search_member = isset($_GET['search']) ? mysqli_real_escape_string($conn, trim($_GET['search'])) : "";
 $query_user = mysqli_query($conn, "SELECT * FROM tbmember WHERE role = 'customer' AND (Nama LIKE '%$search_member%' OR NoHP LIKE '%$search_member%') ORDER BY ID DESC LIMIT 10");
 
-$query_history = mysqli_query($conn, "SELECT r.*, m.Nama FROM tbredeem_request r JOIN tbmember m ON r.id_user = m.ID WHERE r.status = 'selesai' AND DATE(r.tanggal) = CURDATE() ORDER BY r.tanggal DESC");
+$query_history = mysqli_query($conn, "SELECT r.*, m.Nama 
+    FROM tbredeem_request r 
+    JOIN tbmember m ON r.id_user = m.ID 
+    WHERE r.status = 'selesai' AND $where_clause_history 
+    ORDER BY r.tanggal DESC");
 $count_today = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM tbredeem_request WHERE status='selesai' AND DATE(tanggal) = CURDATE()"))['total'];
 $count_member = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM tbmember WHERE role='customer'"))['total'];
 ?>
@@ -151,14 +172,26 @@ $count_member = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total
         <p style="color: #999; font-size: 13px; margin: 0;">Silakan pilih menu untuk memulai operasional.</p>
     </div>
 
-    <div id="box-scanner" class="content-box">
-        <h4 style="margin:0 0 15px 0;">Validator Kamera</h4>
-        <div id="reader-container"></div>
-        <form action="proses_konfirmasi_admin.php" method="POST">
-            <input type="text" name="kode_unik" id="kode_unik" placeholder="KODE-XXXXX" required style="text-align:center; font-weight:800; border:2px dashed #e63946; color:#e63946;">
-            <button type="submit" name="cek_kode" style="width:100%; padding:15px; background:#1a1a1a; color:white; border-radius:15px; border:none; font-weight:800;">PROSES MANUAL</button>
-        </form>
-    </div>
+   <div id="box-scanner" class="content-box">
+    <h4 style="margin:0 0 15px 0;"><i class="fas fa-qrcode"></i> Validator Scan</h4>
+    
+    <div id="reader-container"></div>
+
+    <form id="form-scan-manual">
+        <input type="text" name="kode_unik" id="kode_unik" placeholder="KODE AIC-XXXXX" required 
+               style="text-align:center; font-weight:800; border:2px dashed #e63946; color:#e63946; text-transform:uppercase;">
+        
+        <div id="area-aksi-scan" style="margin-top:15px; display:none;">
+            <p id="info-customer-scan" style="font-size:12px; font-weight:800; color:#2d3436; margin-bottom:10px;"></p>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <button type="button" onclick="prosesRedeem()" style="padding:15px; background:#2a9d8f; color:white; border-radius:15px; border:none; font-weight:800; cursor:pointer;">✅ TERIMA REDEEM</button>
+                <button type="button" onclick="stopScanner(); toggleSection('box-scanner')" style="padding:15px; background:#e63946; color:white; border-radius:15px; border:none; font-weight:800; cursor:pointer;">❌ BATAL</button>
+            </div>
+        </div>
+
+        <button type="button" id="btn-cek-manual" onclick="cekKodeManual()" style="margin-top:10px; width:100%; padding:15px; background:#1a1a1a; color:white; border-radius:15px; border:none; font-weight:800;">CEK KODE</button>
+    </form>
+</div>
 
     <div id="box-transaksi" class="content-box">
         <h4 style="margin:0 0 15px 0;"><i class="fas fa-plus-circle"></i> Input Transaksi</h4>
@@ -169,20 +202,40 @@ $count_member = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total
         </form>
     </div>
 
-    <div id="box-history" class="content-box">
-        <h4 style="margin:0 0 15px 0;">History Redeem Hari Ini</h4>
-        <div style="overflow-y:auto; max-height:250px;">
-            <table>
+   <div id="box-history" class="content-box">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+        <h4 style="margin:0;"><?php echo $judul_history; ?></h4>
+        
+        <form method="GET" action="">
+            <select name="range" onchange="this.form.submit()" 
+                    style="padding:5px 10px; border-radius:10px; border:1px solid #eee; font-family:'Plus Jakarta Sans'; font-size:11px; font-weight:800; cursor:pointer; background:#f9f9f9;">
+                <option value="today" <?php echo $filter == 'today' ? 'selected' : ''; ?>>Hari Ini</option>
+                <option value="weekly" <?php echo $filter == 'weekly' ? 'selected' : ''; ?>>Weekly</option>
+                <option value="monthly" <?php echo $filter == 'monthly' ? 'selected' : ''; ?>>Monthly</option>
+            </select>
+        </form>
+    </div>
+
+    <div style="overflow-y:auto; max-height:250px;">
+        <table style="width:100%; border-collapse:collapse;">
+            <?php if(mysqli_num_rows($query_history) > 0) : ?>
                 <?php while($h = mysqli_fetch_assoc($query_history)) : ?>
-                <tr>
-                    <td><small><?php echo date('H:i', strtotime($h['tanggal'])); ?></small></td>
-                    <td><strong><?php echo $h['Nama']; ?></strong></td>
-                    <td style="color:#e63946; font-weight:700; text-align:right;"><?php echo $h['nama_item']; ?></td>
+                <tr style="border-bottom:1px solid #f5f5f5;">
+                    <td style="padding:10px 5px;"><small style="color:#888;"><?php echo date('d/m H:i', strtotime($h['tanggal'])); ?></small></td>
+                    <td style="padding:10px 5px;"><strong><?php echo htmlspecialchars($h['Nama']); ?></strong></td>
+                    <td style="padding:10px 5px; color:#e63946; font-weight:700; text-align:right; font-size:12px;">
+                        <?php echo htmlspecialchars($h['nama_item']); ?>
+                    </td>
                 </tr>
                 <?php endwhile; ?>
-            </table>
-        </div>
+            <?php else : ?>
+                <tr>
+                    <td colspan="3" style="text-align:center; padding:20px; color:#ccc; font-size:12px;">Belum ada history transaksi.</td>
+                </tr>
+            <?php endif; ?>
+        </table>
     </div>
+</div>
 
     <div id="box-member" class="content-box">
         <h4 style="margin:0 0 15px 0;">Data Member</h4>
@@ -240,12 +293,58 @@ function toggleSection(id) {
 function startScanner() {
     toggleSection('box-scanner');
     const container = document.getElementById("reader-container");
-    container.innerHTML = '<div id="reader"></div><button onclick="stopScanner(); toggleSection(\'box-scanner\')" style="width:100%; background:#636e72; color:white; padding:10px; border:none; border-radius:12px; margin-top:10px; cursor:pointer; font-weight:800;">BATAL SCAN</button>';
+    container.innerHTML = '<div id="reader"></div>';
+    
+    // Reset tampilan button
+    document.getElementById("area-aksi-scan").style.display = "none";
+    document.getElementById("btn-cek-manual").style.display = "block";
+
     html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 20, qrbox: 250 });
     html5QrcodeScanner.render((txt) => {
         document.getElementById("kode_unik").value = txt;
         stopScanner();
+        // Langsung munculin button redeem setelah scan sukses
+        tampilkanButtonRedeem(txt);
     });
+}
+
+function cekKodeManual() {
+    const kode = document.getElementById("kode_unik").value;
+    if(kode.length > 5) {
+        tampilkanButtonRedeem(kode);
+    } else {
+        alert("Masukkan kode yang valid!");
+    }
+}
+
+function tampilkanButtonRedeem(kode) {
+    // Sembunyikan tombol cek, munculkan tombol Redeem/Batal
+    document.getElementById("btn-cek-manual").style.display = "none";
+    document.getElementById("area-aksi-scan").style.display = "block";
+    document.getElementById("info-customer-scan").innerText = "Konfirmasi Redeem untuk Kode: " + kode;
+}
+
+function prosesRedeem() {
+    const kode = document.getElementById("kode_unik").value;
+    // Buat form bayangan untuk kirim POST ke proses_konfirmasi_admin.php
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = 'proses_konfirmasi_admin.php';
+
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'kode_unik';
+    input.value = kode;
+    
+    const btn = document.createElement('input');
+    btn.type = 'hidden';
+    btn.name = 'cek_kode';
+    btn.value = '1';
+
+    form.appendChild(input);
+    form.appendChild(btn);
+    document.body.appendChild(form);
+    form.submit();
 }
 
 function stopScanner() {

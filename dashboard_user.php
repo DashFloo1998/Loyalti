@@ -12,10 +12,10 @@ $total_redeem = isset($user['Total_Redeem']) ? (int)$user['Total_Redeem'] : 0; /
 
 // AMBIL DATA DULU
 $total_redeem = (int)$user['Total_Redeem']; 
-$pts_silver = 1500;
-$pts_gold = 2500;
+$pts_silver = 1000;
+$pts_gold = 2000;
 $pts_super = 4000;
-$pts_ultimate = 8000;
+$pts_ultimate = 6000;
 
 // LOGIKA PENENTUAN WARNA (Gunakan >= agar pas angka 5000 langsung berubah)
 if ($total_redeem >= $pts_ultimate) {

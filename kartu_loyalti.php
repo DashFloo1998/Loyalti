@@ -47,7 +47,7 @@ $limit = 10;
         .main-container { 
             background: rgba(255, 255, 255, 0.9); 
             backdrop-filter: blur(20px);
-            width: 90%; max-width: 420px; 
+            width: 95%; max-width: 450px; 
             padding: 40px 30px; border-radius: 40px; 
             box-shadow: 0 40px 80px rgba(0,0,0,0.1);
             text-align: center; border: 1px solid rgba(255, 255, 255, 0.5);
@@ -57,60 +57,64 @@ $limit = 10;
         header h1 { color: #333; font-weight: 800; font-size: 24px; margin-bottom: 5px; letter-spacing: -1px; }
         header p { color: #888; font-size: 12px; margin-top: 0; font-weight: 600; }
         
-        /* GAYA KARTU LOYALTY PREMIUM */
+       /* 2. KARTU LANDSCAPE (Merah Premium Bertekstur) */
         .loyalty-card { 
-            background: linear-gradient(135deg, #222 0%, #000 100%); 
-            color: white; padding: 25px; border-radius: 30px; 
-            margin: 25px 0; position: relative; overflow: hidden; 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            background: radial-gradient(circle at center, #a50000 0%, #660000 70%, #2a0000 100%);
+            color: white; 
+            padding: 20px; 
+            border-radius: 20px; 
+            margin: 20px 0; 
+            position: relative; 
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(165,0,0,0.3);
             border: 1px solid rgba(255,255,255,0.1);
+            
+            /* Perbandingan kartu landscape (lebar > tinggi) */
+            aspect-ratio: 1.6 / 1; 
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
         
         /* Efek Kilau Kartu */
         .loyalty-card::after {
             content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(255, 0, 0, 0.05) 0%, transparent 70%);
         }
 
         .card-header { 
             display: flex; justify-content: space-between; align-items: center; 
-            margin-bottom: 25px; border-bottom: 1px solid rgba(255,255,255,0.1); 
-            padding-bottom: 15px; position: relative; z-index: 2;
+            margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); 
+            padding-bottom: 10px; position: relative; z-index: 2;
         }
         .card-title { font-weight: 800; font-size: 11px; letter-spacing: 2px; color: #ffffff; }
         .brand-name { font-weight: 800; color: white; font-size: 14px; }
         
-        /* GRID STAMP GAYA BARU */
-        /* --- FIX JARAK STAMP (Gap Diperlebar) --- */
+        /* 3. GRID STAMP (Dibuat memanjang ke samping) */
         .stamp-grid { 
             display: grid; 
-            grid-template-columns: repeat(5, 1fr); 
-            gap: 15px; /* Sebelumnya mungkin 10px, kita naikkan jadi 15px */
-            margin-bottom: 25px; 
-            position: relative; 
-            z-index: 2; 
+            grid-template-columns: repeat(5, 1fr); /* Tetap 5 kolom */
+            grid-template-rows: repeat(2, 1fr);    /* Dibuat 2 baris agar landscape */
+            gap: 8px; 
+            margin: 7px 0;
+            z-index: 2;
         }
 
-        /* --- FIX BULATAN STAMP (Padding Ditambah) --- */
+        /* 4. UKURAN BULATAN (Disesuaikan agar pas di kartu lebar) */
         .circle { 
             width: 100%; 
+            max-width: 50px; /* Batasi ukuran bulatan agar tidak lonjong */
+            margin: auto;
             aspect-ratio: 1/1; 
-            background: rgba(255,255,255,0.05); 
-            border: 2px dashed rgba(255,255,255,0.2); 
+            background: rgba(0,0,0,0.2); 
+            border: 1px solid rgba(255,255,255,0.2); 
             border-radius: 50%; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
-            font-weight: 800; 
-            font-size: 11px; 
-            color: rgba(255,255,255,0.3);
-            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            
-            /* Tambahkan Padding di sini agar logo tidak dempet ke pinggir */
-            padding: 8px; /* Memberi ruang napas untuk logo pinguin */
-            box-sizing: border-box; /* Pastikan padding tidak merusak ukuran bulatan */
+            padding: 7px;
+            box-sizing: border-box;
         }
-
         /* Saat Stamp Terisi */
         .circle.active { 
             background:red; border: 2px solid white; 
@@ -126,7 +130,7 @@ $limit = 10;
         .card-footer p { font-size: 12px; font-weight: 700; margin-bottom: 10px; color: #ccc; }
         
         /* PROGRESS BAR NEON */
-        .progress-container { width: 100%; height: 8px; background: #333; border-radius: 10px; overflow: hidden; }
+        .progress-container { width: 100%; height: 5px; background: #333; border-radius: 10px; overflow: hidden; }
         .progress-bar { 
             height: 100%; background: var(--primary); 
             box-shadow: 0 0 15px var(--primary); 

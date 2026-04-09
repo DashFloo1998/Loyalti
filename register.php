@@ -145,7 +145,7 @@ if (isset($_POST['register'])) {
 <div class="login-card">
     <img src="https://arest.web.id/sites/default/files/styles/foto_company_singlepost/public/logo-ai-cha-ice-cream-and-tea.png?itok=gmWdhx1o" class="logo" alt="Ai-CHA Logo">
     
-    <h2>Registrasi Member</h2>
+    <h2>Registrasi Loyalti</h2>
 
     <?php if(isset($error)): ?>
         <div class="error-msg">
